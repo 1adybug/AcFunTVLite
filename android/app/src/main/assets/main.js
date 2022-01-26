@@ -1115,14 +1115,14 @@ class App extends Component {
                     </div>
                     :
                     <div className="type-wrapper">
-                        <div className="choice-title">请选择你的设备类型，电视设备按下随意按键</div>
+                        <div className="choice-title">请选择你的设备类型，电视设备按下任意按键</div>
                         <div className="type-choice" >
                             <button className="type-img" style={{ backgroundImage: "url(https://s3.bmp.ovh/imgs/2022/01/11f995c3bd0e4204.png)" }} onClick={() => switchDevice(1)} autoFocus={true}></button>
                             <div className="type-text">电视设备</div>
                         </div>
                         <div className="type-choice" >
                             <button className="type-img" style={{ backgroundImage: "url(https://s3.bmp.ovh/imgs/2022/01/77631ede80de728d.png)" }} onClick={() => switchDevice(0)}></button>
-                            <div className="type-text">触屏设备</div>
+                            <div className="type-text">触控设备</div>
                         </div>
                     </div>
                 }
