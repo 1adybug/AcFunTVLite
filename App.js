@@ -277,10 +277,10 @@ export default class App extends Component {
                                                 const height = parseFloat(getComputedStyle(bg).height)
                                                 const o = height / 720
                                                 document.querySelector("#main").style.zIndex = "9992"
-                                                code.style = \`position: fixed; left: \${180 * o}px; top: \${180 * o}px; width: \${300 * o}px; height: \${300 * o}px\`
+                                                code.style = \`position: fixed; left: \${160 * o}px; top: \${180 * o}px; width: \${300 * o}px; height: \${300 * o}px\`
                                                 const tip = document.createElement("div")
                                                 tip.innerHTML = "请使用 AcFun 手机版扫码登录"
-                                                tip.style = \`position: fixed; left: \${180 * o}px; top: \${480 * o}px; width: \${300 * o}px; line-height: \${60 * o}px; color: #FD4C5D; font-weight: bold; text-align: center; z-index: 9993; font-size: \${20 * o}px\`
+                                                tip.style = \`position: fixed; left: \${160 * o}px; top: \${480 * o}px; width: \${300 * o}px; line-height: \${60 * o}px; color: #FD4C5D; font-weight: bold; text-align: center; z-index: 9993; font-size: \${20 * o}px\`
                                                 document.body.appendChild(tip)
 
                                                 const account = document.createElement("input")
@@ -288,14 +288,14 @@ export default class App extends Component {
                                                 account.autofocus = true
                                                 account.id = "account"
                                                 account.type = "text"
-                                                account.style = \`position: fixed; right: \${180 * o}px; top: \${180 * o}px; width: \${500 * o}px; height: \${80 * o}px; font-size: \${40 * o}px; padding-left: \${40 * o}px; background-color: white; z-index: 99999; box-sizing: border-box;\`
+                                                account.style = \`position: fixed; right: \${160 * o}px; top: \${180 * o}px; width: \${500 * o}px; height: \${80 * o}px; font-size: \${40 * o}px; padding-left: \${40 * o}px; background-color: white; z-index: 99999; box-sizing: border-box;\`
                                                 document.body.appendChild(account)
 
                                                 const password = document.createElement("input")
                                                 password.placeholder = "请输入密码"
                                                 password.id = "password"
                                                 password.type = "password"
-                                                password.style = \`position: fixed; right: \${180 * o}px; top: \${290 * o}px; width: \${500 * o}px; height: \${80 * o}px; font-size: \${40 * o}px; padding-left: \${40 * o}px; background-color: white; z-index: 99999; box-sizing: border-box;\`
+                                                password.style = \`position: fixed; right: \${160 * o}px; top: \${290 * o}px; width: \${500 * o}px; height: \${80 * o}px; font-size: \${40 * o}px; padding-left: \${40 * o}px; background-color: white; z-index: 99999; box-sizing: border-box;\`
                                                 document.body.appendChild(password)
 
                                                 const login = document.createElement("button")
@@ -308,12 +308,12 @@ export default class App extends Component {
                                                 }
                                                 login.onfocus = () => login.style.backgroundColor = "red"
                                                 login.onblur = () => login.style.backgroundColor = "#FD4C5D"
-                                                login.style = \`position: fixed; right: \${180 * o}px; top: \${400 * o}px; width: \${500 * o}px; height: \${80 * o}px; line-height: \${80 * o}px; font-size: \${40 * o}px; background-color: #FD4C5D; z-index: 99999; box-sizing: border-box; text-align: center; color: white;\`
+                                                login.style = \`position: fixed; right: \${160 * o}px; top: \${400 * o}px; width: \${500 * o}px; height: \${80 * o}px; line-height: \${80 * o}px; font-size: \${40 * o}px; background-color: #FD4C5D; z-index: 99999; box-sizing: border-box; text-align: center; color: white;\`
                                                 document.body.appendChild(login)
 
                                                 const loginTip = document.createElement("div")
                                                 loginTip.innerHTML = "或者使用键盘上下方向键来进行登录"
-                                                loginTip.style = \`position: fixed; right: \${180 * o}px; top: \${480 * o}px; width: \${500 * o}px; line-height: \${60 * o}px; color: #FD4C5D; font-weight: bold; text-align: center; z-index: 9993; font-size: \${20 * o}px;\`
+                                                loginTip.style = \`position: fixed; right: \${160 * o}px; top: \${480 * o}px; width: \${500 * o}px; line-height: \${60 * o}px; color: #FD4C5D; font-weight: bold; text-align: center; z-index: 9993; font-size: \${20 * o}px;\`
                                                 document.body.appendChild(loginTip)
 
                                                 const targetNode = document.getElementsByClassName("status")[0]
