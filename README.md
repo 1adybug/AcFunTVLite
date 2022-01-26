@@ -1,10 +1,11 @@
 # AcFunTVLite
-这是我的首个 React Native 项目，
+这是我的首个 React Native 项目
 
 # React Native 项目核心组件
 1. [react-native-webview](https://github.com/react-native-webview/react-native-webview)
 2. [react-native-fs](https://github.com/itinance/react-native-fs)
 3. [react-native-storage](https://github.com/sunnylqm/react-native-storage)
+4. [axios](https://github.com/axios/axios)
 
 # WebView 中用到核心组件
 1. [react](https://github.com/facebook/react)
@@ -43,6 +44,9 @@
 1. 此时如果按下确认键，就会触发 `中` 这个按钮的点击事件：播放或者暂停视频
 2. 如果按下上下键，就会触发 `上` 和 `下` 的 `onFocus` 事件，调出控制界面，这五个按钮就会隐藏，退出控制界面时，再 Focus `中` 这个按钮
 3. 按下左右键，就会触发 `左` 或者 `右` 的 `onFocus` 事件，快退或者快进视频，并且再次 Focus `中` 这个按钮，这样就能保证`中` 这个按钮永远是 Focus 状态，长按左键或者右键，就可以实现一直快退或者快进
+
+# 播放器的核心原理以及 API
+请看西瓜播放器的官网 [西瓜播放器](http://v2.h5player.bytedance.com/)
 
 # WebView 的核心文件
 都在 `android\app\src\main\assets` 目录下
