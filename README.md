@@ -56,3 +56,6 @@
 - `xgplayer.js` 对应 西瓜播放器
 - `HlsJsPlayer.js` 对应 西瓜播放器的 hls 播放器组件，用于播放 m3u8
 - `main.js` 对应 WebView 的核心代码
+
+# 调试 main.js：
+如果你想修改 `main.js` 中的代码，请重新运行 `react-native run-android` ，因为 `main.js` 为资源文件，并非 React Native 中的代码，从本质上来说，命名为 `main.txt` 的效果也是一样的，因为都是通过 `react-native-fs` 读取的文件内容。因此每次修改，都需要重新运行，以便重新打包。
