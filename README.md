@@ -49,7 +49,7 @@
 请看西瓜播放器的官网 [西瓜播放器](http://v2.h5player.bytedance.com/)
 
 # WebView 的核心文件
-都在 `android\app\src\main\assets` 目录下
+都在 [android\app\src\main\assets](https://github.com/1adybug/AcFunTVLite/tree/master/android/app/src/main/assets) 目录下
 - `react.production.min.js` 对应 react
 - `react-dom.production.min.js` 对应 react-dom
 - `babel.min.js` 对应 babel
