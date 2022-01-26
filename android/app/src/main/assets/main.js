@@ -478,16 +478,21 @@ style.innerHTML = `
     height: ${40 * a}px !important;
 }
 
-.xgplayer-play, .xgplayer-volume, .xgplayer-time, .danmu-switch, .xgplayer-playbackrate {
+.xgplayer-play, .xgplayer-volume, .xgplayer-time, .danmu-switch, .xgplayer-playbackrate, .xgplayer-definition {
     zoom: ${a};
 }
 
-.xgplayer-playbackrate {
-    margin-left: ${12 * a}px;
+.xgplayer-playbackrate, .xgplayer-definition, .danmu-switch {
+    margin-left: ${8 * a}px;
     
 }
 
 .xgplayer-skin-default .xgplayer-playbackrate ul li {
+    font-size: ${12 * a}px !important;
+    line-height: ${18 * a}px !important;
+}
+
+.xgplayer-skin-default .xgplayer-definition ul li {
     font-size: ${12 * a}px !important;
     line-height: ${18 * a}px !important;
 }
@@ -651,8 +656,8 @@ class App extends Component {
     // 用于避免用户在点击某一个栏目，等待更新到这个栏目时，却还没完成更新时，点击了另一个栏目
     waittingIndex = -1
 
-    // 用于避免同时创建两个视频
-    gettingVideo = false
+    // 用于存储当前正在请求的视频 ac 号，用于避免同时创建两个视频
+    gettingVideo = null
 
     // 视频播放器对象
     player = null
@@ -674,6 +679,12 @@ class App extends Component {
 
     // pcursor
     pcursor = 0
+
+    // 用于保存关注视频列表容器
+    followRef = createRef()
+
+    // 用于防止同时更新关注页面
+    updateingFollowVideo = false
 
     state = {
         currentSourceIndex: 0,
@@ -785,19 +796,34 @@ class App extends Component {
 
     playVideo = async ac => {
 
-        if (this.gettingVideo) return
+        // 如果需要请求的 ac 号和正在请求的 ac 相同，则返回
+        if (this.gettingVideo === ac) return
+
         showMessage("视频加载中...")
         const timer = setTimeout(() => {
             showMessage("弹幕较多的视频需要加载的时间较长")
         }, 1500)
-        this.gettingVideo = true
+
+        // 记录下正则请求的 ac 号
+        this.gettingVideo = ac
+
+        // 初始化视频参数
         this.paused = false
+
+        // 获取视频信息
         const videoInfo = await getVideoInfo(ac)
+
+        // 如果此时还没有 1500ms 则清除
         clearTimeout(timer)
-        if (!videoInfo) {
-            this.gettingVideo = false
+
+        // 如果此时返回的视频信息为空，或者希望请求的 ac 号又变了（只要改变了请求的 ac 号，无论是新的 ac 号，或者是 null），则啥也不做
+        if (!videoInfo || this.gettingVideo !== ac) {
+            // 清除
+            this.gettingVideo = null
             return
         }
+
+        // 如果此时播放器对象还存在，尝试销毁
         if (this.player) {
             try {
                 this.player.destroy()
@@ -805,18 +831,28 @@ class App extends Component {
                 console.log(error)
             }
         }
+
+        // 存储视频清晰度地址
         this.qualityUrlList = videoInfo.qualityList.map(value => value.url)
+
+        // 修改控制参数列表
         const _ = [...this.state.controlList]
         _[0].list = videoInfo.qualityList.map(value => value.name)
+
+        // 告诉外层的 React Native 此时不可以直接返回
         postMessage({
             type: "changeState",
             data: 1
         })
+
+        // 准备播放
         this.setState({
             title: videoInfo.title,
             show: 1,
             controlList: _
         })
+
+        // 初始化播放器
         this.player = new HlsJsPlayer({
             id: "tv-player",
             url: videoInfo.qualityList[0].url,
@@ -832,15 +868,21 @@ class App extends Component {
             controls: this.state.isTV === 0,
             playbackRateUnit: "X"
         })
+
+        this.player.emit("resourceReady", videoInfo.qualityList)
+
+        // 播放后聚焦按钮
         this.player.once("play", () => {
             this.gettingVideo = false
             document.getElementById("confirm-button").focus()
         })
 
-        this.gettingVideo = false
+        // 清除 ac 号
+        this.gettingVideo = null
     }
 
 
+    // 防止某个视频专辑封面不能在屏幕中完整显示
     locateAlbum = index => {
 
         // 获取视频容器包含上边距的位置
@@ -901,10 +943,18 @@ class App extends Component {
 
     updateFollowVideo = async () => {
         showMessage("页面加载中...")
+
+        if (this.updateingFollowVideo) return
+        this.updateingFollowVideo = true
+        const timer = setTimeout(() => {
+            this.updateingFollowVideo = false
+        }, 2000)
         if (isNaN(this.pcursor * 1)) return
         const data = await axios({ url: `https://www.acfun.cn/rest/pc-direct/feed/followDougaFeed?pcursor=${this.pcursor}&count=20` }, true)
-        console.log(data)
-        const { feedList, pcursor } = data
+        this.pcursor = data.pcursor
+        const _data = await axios({ url: `https://www.acfun.cn/rest/pc-direct/feed/followDougaFeed?pcursor=${this.pcursor}&count=20` }, true)
+        this.pcursor = _data.pcursor
+        const feedList = [...data.feedList, ..._data.feedList]
         if (this.pcursor !== 0) {
             const _ = this.state.followVideoList
             this.setState({
@@ -931,10 +981,9 @@ class App extends Component {
                 }))
             })
         }
-
-        console.log(this.state.followVideoList)
-
         this.pcursor = pcursor
+        clearTimeout(timer)
+        this.updateingFollowVideo = false
     }
 
     pauseVideo = () => {
@@ -987,9 +1036,14 @@ class App extends Component {
         })
     }
 
+    // 关注页面滚动到底时，将会更新视频列表
+    scrollToUpdateFollow = () => {
+        if (this.followRef.current.scrollHeight < (this.followRef.current.scrollTop + height - 80 * o + 261 * o)) this.updateFollowVideo()
+    }
+
     render() {
 
-        const { sourceNameList, switchToIndex, playVideo, pauseVideo, showControl, forwardVideo, backwardVideo, controlFun, locateAlbum, switchDevice } = this
+        const { sourceNameList, switchToIndex, playVideo, pauseVideo, showControl, forwardVideo, backwardVideo, controlFun, locateAlbum, switchDevice, followRef, scrollToUpdateFollow } = this
 
         const { currentSourceIndex, show, sourceVideoList, title, controlList, isTV, followVideoList } = this.state
 
@@ -1014,7 +1068,7 @@ class App extends Component {
                                 </div>
                             )
                         }
-                        <div className="video-album-area" id="video-album-follow" style={{ display: show === 0 && currentSourceIndex === -1 ? "flex" : "none" }} key={-1} >
+                        <div className="video-album-area" id="video-album-follow" style={{ display: show === 0 && currentSourceIndex === -1 ? "flex" : "none" }} key={-1} ref={followRef} onScroll={scrollToUpdateFollow} >
                             {
                                 followVideoList.map((_value, _index) => <VideoAlbum title={_value.title} up={_value.up} cover={_value.cover} avatar={_value.avatar} bananaCount={_value.bananaCount} ac={_value.ac} key={_value.ac} playVideo={playVideo} locateAlbum={() => locateAlbum(_index)} />)
                             }

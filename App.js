@@ -45,70 +45,11 @@ export default class App extends Component {
                     data
                 })
                 this.cookie = data
+                // 这里必须先切换为0，再切换为1，直接切换不能重新 render 停留在登录页面，不知道为啥
                 this.setState({
-                    show: 1,
-                    html: `
-                    <!DOCTYPE html>
-                    <html lang="zh">
-                    
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                        <meta name="viewport" content="initial-scale=0, maximum-scale=0, user-scalable=0">
-                        <title>AcFun TV</title>
-                        <script>
-                            ${this.react}
-                        </script>
-                        <script>
-                            ${this.reactdom}
-                        </script>
-                        <script>
-                            ${this.player}
-                        </script>
-                        <script>
-                            ${this.hlsjsplayer}
-                        </script>
-                        <script>
-                            ${this.babel}
-                        </script>
-                        <style>
-                            html, body, #root, #app {
-                                width: 100%;
-                                height: 100%;
-                            }
-                            * {
-                                margin: 0;
-                                padding: 0;
-                            }
-                        </style>
-                    </head>
-                    
-                    <body>
-                        <div id="root"></div>
-                    </body>
-                    <script type="text/babel">
-                        const isTV = ${this.isTV}
-                        const cookie = "${this.cookie}"
-                        const postMessage = message => window.ReactNativeWebView.postMessage(JSON.stringify(message))
-                        console.log = (...rest) => postMessage({
-                            type: "console",
-                            data: rest
-                        })
-                        console.warn = console.log
-                        console.error = console.log
-                        console.debug = console.log
-                        console.info = console.log
-                        try {
-                            ${this.main}
-                        } catch (error) {
-                            console.log(error.toString())
-                        }
-                        console.log(!!Player)
-                    </script>
-                    
-                    </html>
-                    `
+                    show: 0
                 })
+                await this.initApp()
                 return
 
             case "message":
@@ -124,6 +65,7 @@ export default class App extends Component {
                     key: "isTV",
                     data
                 })
+                this.isTV = data
                 return
 
             case "login":
