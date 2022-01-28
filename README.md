@@ -10,7 +10,7 @@
 # WebView 中用到核心组件
 1. [react](https://github.com/facebook/react)
 2. [babel](https://babeljs.io/)
-3. [xgplayer](https://github.com/bytedance/xgplayer)
+3. [xgplayer](http://v2.h5player.bytedance.com/)
 
 # 1.0 版本原理
 通过 WebView 组件的 `injectedJavaScript` 功能，在页面上注入JS。`source` 是 A站的 About 页面。在这个页面请求各种数据，搭配 React 改写页面，自写 UI，通过西瓜播放器实现视频播放和弹幕之类的核心功能。遥控器的功能通过 `document.addEventListener` 中的 `keydown` 和 `keyup` 实现，上下左右确认的操作的逻辑都是通过 React 实现，为了防止系统的默认事件，还采用了 `e.preventDefault()` 和 `e.cancelBubble()`
@@ -55,6 +55,7 @@
 - `babel.min.js` 对应 babel
 - `xgplayer.js` 对应 西瓜播放器
 - `HlsJsPlayer.js` 对应 西瓜播放器的 hls 播放器组件，用于播放 m3u8
+- `FlvJsPlayer.js` 对应 西瓜播放器的 flv 播放器组件，用于播放 flv
 - `main.js` 对应 WebView 的核心代码
 
 # 调试 main.js
