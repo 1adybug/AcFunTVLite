@@ -73,6 +73,15 @@ style.innerHTML = `
     background-color: black;
 }
 
+#live-player {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: black;
+}
+
 #tv-player-control {
     width: 100%;
     height: 100%;
@@ -116,6 +125,74 @@ style.innerHTML = `
     overflow: auto;
     position: relative;
     padding-top: ${39 * o}px;
+}
+
+.video-album-ac {
+    flex: auto;
+    display: flex;
+    position: relative;
+}
+
+.input-wrapper {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: ${100 * o}px;
+}
+
+.input-video-id, .goto-video-id {
+    padding: 0 ${24 * o}px;
+    line-height: ${66 * o}px;
+    font-size: ${30 * o}px;
+}
+
+.input-video-id {
+    width: ${600 * o}px;
+    border: none;
+}
+
+.input-video-id:focus {
+    border: ${o}px solid #111111;
+}
+
+.goto-video-id {
+    width: ${120 * o}px;
+    text-align: center;
+    background-color: #EFEFEF;
+}
+
+.goto-video-id:focus {
+    background-color: #FD4C5D;
+    color: white;
+}
+
+.live-history-wrapper {
+    position: absolute;
+    width: 100%;
+    height: ${500 * o}px;
+    padding: ${13 * o}px ${150 * o}px  ${50 * o}px  ${150 * o}px;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    over-flow: hidden;
+}
+
+.live-history-wrapper>div {
+    font-size: ${20 * o}px;
+    padding: 0 ${16 * o}px;
+    line-height: ${44 * o}px;
+    background-color: #EFEFEF;
+    border-radius: ${22 * o}px;
+    margin-right: ${13 * o}px;
+    margin-bottom: ${13 * o}px;
+    flex: none;
+}
+
+.live-history-wrapper>div:focus {
+    background-color: #FD4C5D;
+    color: white;
 }
 
 .video-album-wrapper {
@@ -686,6 +763,9 @@ class App extends Component {
     // 用于防止同时更新关注页面
     updateingFollowVideo = false
 
+    // 输入框
+    inputRef = createRef()
+
     state = {
         currentSourceIndex: 0,
         show: 0,
@@ -709,7 +789,8 @@ class App extends Component {
                 selected: 0
             }
         ],
-        followVideoList: []
+        followVideoList: [],
+        liveHistory: liveHistory
     }
 
 
@@ -771,6 +852,17 @@ class App extends Component {
                         break
 
                     case 1:
+                        if (this.player && this.player.destroy) this.player.destroy()
+                        postMessage({
+                            type: "changeState",
+                            data: 0
+                        })
+                        this.setState({
+                            show: 0
+                        })
+                        break
+
+                    case 3:
                         if (this.player && this.player.destroy) this.player.destroy()
                         postMessage({
                             type: "changeState",
@@ -881,6 +973,142 @@ class App extends Component {
         this.gettingVideo = null
     }
 
+    playLiveVideo = async ac => {
+
+        console.log("被执行了")
+
+        // 如果需要请求的 ac 号和正在请求的 ac 相同，则返回
+        if (this.gettingVideo === ac) return
+
+        showMessage("直播加载中...")
+
+        // 记录下正则请求的 ac 号
+        this.gettingVideo = ac
+
+        // 获取视频信息
+        const r0 = await axios({
+            url: "https://id.app.acfun.cn/rest/app/visitor/login",
+            headers: {
+                "accept": "application/json, text/plain, */*",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "zh-CN,zh;q=0.9",
+                "cache-control": "no-cache",
+                "content-length": 21,
+                "content-type": "application/x-www-form-urlencoded",
+                "origin": "https://live.acfun.cn",
+                "pragma": "no-cache",
+                "referer": "https://live.acfun.cn/",
+                "sec-ch-ua": '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": `"Windows"`,
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-site",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.9 Safari/537.36",
+                "cookie": "_did=web_3294464753C20698"
+            },
+            withCredentials: true,
+            method: "post",
+            data: "sid=acfun.api.visitor"
+        })
+
+        const r1 = await axios({
+            headers: {
+                "accept": "application/json, text/plain, */*",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "zh-CN,zh;q=0.9",
+                "cache-control": "no-cache",
+                "content-length": 21,
+                "content-type": "application/x-www-form-urlencoded",
+                "origin": "https://live.acfun.cn",
+                "pragma": "no-cache",
+                "referer": "https://live.acfun.cn/",
+                "sec-ch-ua": '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": `"Windows"`,
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-site",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.9 Safari/537.36",
+                "cookie": "_did=web_3294464753C20698"
+            },
+            url: `https://api.kuaishouzt.com/rest/zt/live/web/startPlay?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=${r0.userId}&acfun.api.visitor_st=${r0["acfun.api.visitor_st"]}`,
+            withCredentials: true,
+            method: "post",
+            data: `authorId=${ac}&pullStreamType=FLV`
+        })
+
+        if (r1.result !== 1) {
+            showMessage("直播间不存在或者未开播")
+            return
+        }
+
+        const r2 = await axios({ url: `https://live.acfun.cn/live/${ac}` })
+
+        const up = getAll(`class="up-name">`, `</a>`, r2)[0]
+
+        if (this.state.liveHistory.findIndex(value => value.ac === ac) === -1) {
+            this.setState({
+                liveHistory: [{ ac, up }, ...this.state.liveHistory]
+            })
+            postMessage({
+                type: "liveHistory",
+                data: { ac, up }
+            })
+        }
+
+        const videoList = getAll(`"url":"`, `","bitrate"`, r1.data.videoPlayRes)
+
+        console.log(videoList)
+
+        // 如果此时播放器对象还存在，尝试销毁
+        if (this.player) {
+            try {
+                this.player.destroy()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        // 告诉外层的 React Native 此时不可以直接返回
+        postMessage({
+            type: "changeState",
+            data: 1
+        })
+
+        this.setState({
+            show: 3
+        })
+
+        // 初始化播放器
+        this.player = new FlvJsPlayer({
+            id: "live-player",
+            url: videoList[videoList.length - 1],
+            playsinline: true,
+            width,
+            height,
+            autoplay: true,
+            enableVideoDbltouch: true,
+            keyShortcut: "off",
+            ignores: this.state.isTV === 0 ? ["fullscreen"] : [],
+            controls: this.state.isTV === 0
+        })
+
+        this.gettingVideo = null
+
+        console.log("直播到此")
+    }
+
+
+    playInputVideo = () => {
+        const ac = this.inputRef.current.value * 1
+        this.playVideo(ac)
+    }
+
+    playInputLiveVideo = () => {
+        const ac = this.inputRef.current.value * 1
+        this.playLiveVideo(ac)
+    }
 
     // 防止某个视频专辑封面不能在屏幕中完整显示
     locateAlbum = index => {
@@ -905,6 +1133,14 @@ class App extends Component {
     }
 
     switchToIndex = async index => {
+
+        if (index === -2) {
+            this.setState({
+                currentSourceIndex: index
+            })
+            // await this.playLiveVideo(40656720)
+            return
+        }
 
         if (index === -1) {
             console.log(this.cookie)
@@ -1043,9 +1279,9 @@ class App extends Component {
 
     render() {
 
-        const { sourceNameList, switchToIndex, playVideo, pauseVideo, showControl, forwardVideo, backwardVideo, controlFun, locateAlbum, switchDevice, followRef, scrollToUpdateFollow } = this
+        const { sourceNameList, switchToIndex, playVideo, pauseVideo, showControl, forwardVideo, backwardVideo, controlFun, locateAlbum, switchDevice, followRef, scrollToUpdateFollow, playLiveVideo, inputRef, playInputVideo, playInputLiveVideo } = this
 
-        const { currentSourceIndex, show, sourceVideoList, title, controlList, isTV, followVideoList } = this.state
+        const { currentSourceIndex, show, sourceVideoList, title, controlList, isTV, followVideoList, liveHistory } = this.state
 
         return (
             <Fragment>
@@ -1054,6 +1290,7 @@ class App extends Component {
 
                     <div id="tv">
                         <div className="tv-top-bar" style={{ display: show === 0 ? "flex" : "none" }}>
+                            <div className="video-source" style={{ backgroundColor: currentSourceIndex === -2 ? "#FD4C5D" : "#EFEFEF", color: currentSourceIndex === -2 ? "white" : "black" }} onClick={() => switchToIndex(-2)} >直播</div>
                             <div className="video-source" style={{ backgroundColor: currentSourceIndex === -1 ? "#FD4C5D" : "#EFEFEF", color: currentSourceIndex === -1 ? "white" : "black" }} onClick={() => switchToIndex(-1)} >关注</div>
                             {
                                 sourceNameList.map((value, index) => <div className="video-source" style={{ backgroundColor: currentSourceIndex === index ? "#FD4C5D" : "#EFEFEF", color: currentSourceIndex === index ? "white" : "black" }} onClick={() => switchToIndex(index)} >{value.name}</div>)
@@ -1073,7 +1310,20 @@ class App extends Component {
                                 followVideoList.map((_value, _index) => <VideoAlbum title={_value.title} up={_value.up} cover={_value.cover} avatar={_value.avatar} bananaCount={_value.bananaCount} ac={_value.ac} key={_value.ac} playVideo={playVideo} locateAlbum={() => locateAlbum(_index)} />)
                             }
                         </div>
+                        <div className="video-album-ac" style={{ display: show === 0 && currentSourceIndex === -2 ? "flex" : "none" }}>
+                            <div className="input-wrapper">
+                                <input type="number" className="input-video-id" placeholder="请输入直播房间号或者视频AC号(纯数字)" ref={inputRef} /><div className="goto-video-id" onClick={playInputLiveVideo}>直播</div><div className="goto-video-id" onClick={playInputVideo}>视频</div>
+                            </div>
+                            <div className="live-history-wrapper">
+                                {
+                                    liveHistory.map(value => <div onClick={() => playLiveVideo(value.ac)} >{value.up}</div>)
+                                }
+                            </div>
+                        </div>
                         <div id="tv-player" style={{ display: show === 1 || show === 2 ? "block" : "none" }}></div>
+                        <div id="live-player" style={{ display: show === 3 ? "block" : "none" }}></div>
+                        {/* 用于隐藏西瓜播放器下方一像素高的白线 */}
+                        <div style={{ display: show === 1 || show === 2 || show === 3 ? "block" : "none", position: "fixed", width: "100%", height: "1pt", backgroundColor: "black" }}></div>
 
                         {
                             isTV === 1 ? <div className="control-button-wrapper" style={{ display: show === 1 ? "block" : "none" }}>

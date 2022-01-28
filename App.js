@@ -75,6 +75,21 @@ export default class App extends Component {
                 })
                 return
 
+            case "liveHistory":
+                console.log("保存直播历史记录")
+                let arr
+                try {
+                    arr = await storage.load({ key: "liveHistory" })
+                } catch (error) {
+                    arr = []
+                }
+                arr = [data, ...arr]
+                storage.save({
+                    key: "liveHistory",
+                    data: arr
+                })
+                return
+
             case "axios":
                 console.log("接收到 axios 请求")
                 if (withCookie) {
@@ -133,6 +148,7 @@ export default class App extends Component {
         if (!this.reactdom) this.reactdom = await RNFS.readFileAssets("react-dom.production.min.js")
         if (!this.player) this.player = await RNFS.readFileAssets("xgplayer.js")
         if (!this.hlsjsplayer) this.hlsjsplayer = await RNFS.readFileAssets("HlsJsPlayer.js")
+        if (!this.flvjsplayer) this.flvjsplayer = await RNFS.readFileAssets("FlvJsPlayer.js")
         if (!this.babel) this.babel = await RNFS.readFileAssets("babel.min.js")
         if (!this.main) this.main = await RNFS.readFileAssets("main.js")
         if (!this.cookie) {
@@ -147,6 +163,13 @@ export default class App extends Component {
                 this.isTV = await storage.load({ key: "isTV" })
             } catch (error) {
                 this.isTV = -1
+            }
+        }
+        if (!this.liveHistory) {
+            try {
+                this.liveHistory = await storage.load({ key: "liveHistory" })
+            } catch (error) {
+                this.liveHistory = []
             }
         }
         this.setState({
@@ -173,6 +196,9 @@ export default class App extends Component {
                     ${this.hlsjsplayer}
                 </script>
                 <script>
+                    ${this.flvjsplayer}
+                </script>
+                <script>
                     ${this.babel}
                 </script>
                 <style>
@@ -193,6 +219,7 @@ export default class App extends Component {
             <script type="text/babel">
                 const isTV = ${this.isTV}
                 const cookie = "${this.cookie}"
+                const liveHistory = ${JSON.stringify(this.liveHistory)}
                 const postMessage = message => window.ReactNativeWebView.postMessage(JSON.stringify(message))
                 console.log = (...rest) => postMessage({
                     type: "console",
