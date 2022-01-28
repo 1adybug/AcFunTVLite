@@ -170,7 +170,7 @@ style.innerHTML = `
 .live-history-wrapper {
     position: absolute;
     width: 100%;
-    height: ${500 * o}px;
+    height: ${450 * o}px;
     padding: ${13 * o}px ${150 * o}px  ${50 * o}px  ${150 * o}px;
     bottom: 0;
     display: flex;
@@ -1101,12 +1101,14 @@ class App extends Component {
 
 
     playInputVideo = () => {
-        const ac = this.inputRef.current.value * 1
+        const ac = this.inputRef.current.value.trim() * 1
+        if (isNaN(ac)) return
         this.playVideo(ac)
     }
 
     playInputLiveVideo = () => {
-        const ac = this.inputRef.current.value * 1
+        const ac = this.inputRef.current.value.trim() * 1
+        if (isNaN(ac)) return
         this.playLiveVideo(ac)
     }
 
@@ -1312,7 +1314,8 @@ class App extends Component {
                         </div>
                         <div className="video-album-ac" style={{ display: show === 0 && currentSourceIndex === -2 ? "flex" : "none" }}>
                             <div className="input-wrapper">
-                                <input type="number" className="input-video-id" placeholder="请输入直播房间号或者视频AC号(纯数字)" ref={inputRef} /><div className="goto-video-id" onClick={playInputLiveVideo}>直播</div><div className="goto-video-id" onClick={playInputVideo}>视频</div>
+                                {/* 这里不能用数字类型的原因，数字类型会使遥控器上的上下键不能切换按钮，变成当前数字的+1或者-1 */}
+                                <input className="input-video-id" placeholder="请输入直播房间号或者视频AC号(纯数字)" ref={inputRef} /><div className="goto-video-id" onClick={playInputLiveVideo}>直播</div><div className="goto-video-id" onClick={playInputVideo}>视频</div>
                             </div>
                             <div className="live-history-wrapper">
                                 {
